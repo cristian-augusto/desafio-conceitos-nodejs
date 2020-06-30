@@ -25,7 +25,7 @@ app.post("/repositories", (request, response) => {
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
   const { url, title, techs } = request.body;
-  const repository = repositories.find((repo) => repo.id === id);
+  const repository = repositories.find(repo => repo.id === id);
   if (!repository) {
     return response.status(400).json();
   }
@@ -37,16 +37,23 @@ app.put("/repositories/:id", (request, response) => {
 
 app.delete("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  if (!isUuid(id)) {
-    return response.status(400).json();
+  const repoIndex = repositories.findIndex(repo => repo.id === id);
+  if (repoIndex !== -1) {
+    repositories.splice(repoIndex, 1);
+    return response.status(204).json();
   }
-  const repository = repositories.find((x) => {
-    x.id === id;
-  });
+  return response.status(400).json();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+  const repository = repositories.find(repo => repo.id === id);
+  if (!repository) {
+    return response.status(400).json();
+  }
+  const { likes } = repository;
+  repository.likes = likes + 1;
+  return response.json(repository);
 });
 
 module.exports = app;
